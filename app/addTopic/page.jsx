@@ -1,20 +1,60 @@
-import React from 'react';
+'use client'
+import React, { useState } from 'react';
+import { useRouter } from "next/navigation";
 
-const page = () => {
+export default function AddTopic() {
+
+    const [title, setTitle]   = useState("");
+    const [description, setDescription]   = useState("")
+
+    const router = useRouter()
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!title || !description) {
+            alert("Please enter a title or description");
+            return;
+        }
+
+        try {
+         const res = await fetch("http://localhost:3000/api/topics", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({title, description})
+            });
+            if(res.ok){
+                router.push('/')
+            } 
+            else{
+                throw new Error("Failed to create a topic")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
     return (
-       <form className='flex flex-col gap-3'>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-3'>
 
-        <input type="text" 
-        className='border border-slate-500 px-8 py-2'
-        placeholder='Topic Title'
-        />
-        <input type="text" 
-        className='border border-slate-500 px-8 py-2'
-        placeholder='Topic Description'
-        />
-        <button className='bg-green-600 font-bold text-white py-3 px-6 w-fit'>Add Topic</button>
-       </form>
+            <input
+                onChange={(e) => setTitle(e.target.value)}
+                value={title}
+                type="text"
+                className='border border-slate-500 px-8 py-2'
+                placeholder='Topic Title'
+            />
+            <input
+                onChange={(e) => setDescription(e.target.value)}
+                value={description}
+                type="text"
+                className='border border-slate-500 px-8 py-2'
+                placeholder='Topic Description'
+            />
+            <button
+                type='submit'
+                className='bg-green-600 font-bold text-white py-3 px-6 w-fit'>Add Topic</button>
+        </form>
     );
 };
 
-export default page;
+// export default page;
